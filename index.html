@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuedraggable@2"></script>
+  <title>Project Board</title>
+</head>
+
+<body>
+  <div id="app"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const app = document.getElementById('app');
+      const statuses = ['To Do', 'In Progress', 'Done'];
+      let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+      const render = () => {
+        app.innerHTML = '';
+
+        statuses.forEach((status, index) => {
+          const statusContainer = document.createElement('div');
+          statusContainer.className = 'status';
+          statusContainer.innerHTML = `<h2>${status}</h2>`;
+
+          const tasksInStatus = tasks.filter(task => task.status === index);
+
+          const draggableContainer = document.createElement('div');
+          draggableContainer.className = 'draggable-container';
+          draggableContainer.dataset.status = index;
+
+          tasksInStatus.forEach(task => {
+            const taskElement = document.createElement('div');
+            taskElement.className = 'task';
+            taskElement.innerHTML = `
+              <h3>${task.title}</h3>
+              <p>${task.description}</p>
+              <button onclick="deleteTask(${task.id})">Delete</button>
+            `;
+
+            taskElement.setAttribute('draggable', true);
+            taskElement.dataset.taskId = task.id;
+
+            draggableContainer.appendChild(taskElement);
+          });
+
+          const newTaskForm = document.createElement('form');
+          newTaskForm.innerHTML = `
+            <label>Title:</label>
+            <input type="text" name="title" required>
+            <label>Description:</label>
+            <textarea name="description" required></textarea>
+            <button type="submit">Add Task</button>
+          `;
+
+          newTaskForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const formData = new FormData(newTaskForm);
+            const newTask = {
+              id: Date.now(),
+              title: formData.get('title'),
+              description: formData.get('description'),
+              status: index,
+            };
+            tasks.push(newTask);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            render();
+            newTaskForm.reset();
+          });
+
+          statusContainer.appendChild(draggableContainer);
+          statusContainer.appendChild(newTaskForm);
+
+          app.appendChild(statusContainer);
+        });
+
+        new Vue({
+          el: '.draggable-container',
+          data: {
+            tasks: tasks,
+          },
+          methods: {
+            onEnd(event) {
+              const taskId = event.item.dataset.taskId;
+              const newStatus = event.to.parentElement.dataset.status;
+              const taskIndex = tasks.findIndex(task => task.id == taskId);
+              tasks[taskIndex].status = parseInt(newStatus);
+              localStorage.setItem('tasks', JSON.stringify(tasks));
+              render();
+            },
+          },
+          template: `
+            <draggable v-model="tasks" :group="{ name: 'tasks', pull: 'clone', put: false }" @end="onEnd">
+              <div v-for="task in tasks" :key="task.id" class="task" :data-task-id="task.id">
+                <h3>{{ task.title }}</h3>
+                <p>{{ task.description }}</p>
+                <button @click="deleteTask(task.id)">Delete</button>
+              </div>
+            </draggable>
+          `,
+        });
+      };
+
+      window.deleteTask = (taskId) => {
+        tasks = tasks.filter(task => task.id !== taskId);
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        render();
+      };
+
+      render();
+    });
+  </script>
+
+  <style>
+    .draggable-container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .task {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      cursor: grab;
+    }
+    button{
+        color: rgb(255, 0, 0);
+        background-color: rgb(255, 255, 255);
+    }
+  </style>
+
+</body>
+
+</html>
