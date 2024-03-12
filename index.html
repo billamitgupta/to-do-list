@@ -11,11 +11,12 @@
 </head>
 
 <body>
-  <div id="app"></div>
+  <div id="app" ></div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const app = document.getElementById('app');
+      const col = ['red','yellow','green'];
       const statuses = ['To Do', 'In Progress', 'Done'];
       let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
@@ -26,6 +27,8 @@
           const statusContainer = document.createElement('div');
           statusContainer.className = 'status';
           statusContainer.innerHTML = `<h2>${status}</h2>`;
+         
+         
 
           const tasksInStatus = tasks.filter(task => task.status === index);
 
@@ -47,7 +50,7 @@
 
             draggableContainer.appendChild(taskElement);
           });
-
+          
           const newTaskForm = document.createElement('form');
           newTaskForm.innerHTML = `
             <label>Title:</label>
@@ -77,6 +80,10 @@
 
           app.appendChild(statusContainer);
         });
+        const hee = document.querySelectorAll('h2');
+        hee.forEach((l,index)=>{
+          l.style.color =col[index];
+        })
 
         new Vue({
           el: '.draggable-container',
