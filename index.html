@@ -11,7 +11,7 @@
 </head>
 
 <body>
-  <div id="app" ></div>
+  <div id="app"  ></div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -40,10 +40,14 @@
             const taskElement = document.createElement('div');
             taskElement.className = 'task';
             taskElement.innerHTML = `
-              <h3>${task.title}</h3>
-              <p>${task.description}</p>
-              <button onclick="deleteTask(${task.id})">Delete</button>
+              <h3 style="padding-left: 2vh ">${task.title}</h3>
+              <p style="padding-left: 2vh ">${task.description}</p>
+              <button  class="but1" style="margin-left: 2vh " onclick="deleteTask(${task.id})">&#x2718;</button>
             `;
+            taskElement.style.borderRadius= '20px'
+            taskElement.style.padding='20px'
+            const but= document.querySelector('.but1');
+            <!-- but.style.padding='2px' -->
 
             taskElement.setAttribute('draggable', true);
             taskElement.dataset.taskId = task.id;
@@ -54,10 +58,10 @@
           const newTaskForm = document.createElement('form');
           newTaskForm.innerHTML = `
             <label>Title:</label>
-            <input type="text" name="title" required>
+            <input type="text" name="title" required style="border-radius: 10px;">
             <label>Description:</label>
-            <textarea name="description" required></textarea>
-            <button type="submit">Add Task</button>
+            <textarea name="description" required style="border-radius: 10px;"></textarea>
+            <button type="submit">&#10011;</button>
           `;
 
           newTaskForm.addEventListener('submit', (event) => {
@@ -84,6 +88,7 @@
         hee.forEach((l,index)=>{
           l.style.color =col[index];
         })
+        taskElement.innerHTML=`<button onclick="deleteTask(${task.id})">&#x2718;</button>`
 
         new Vue({
           el: '.draggable-container',
